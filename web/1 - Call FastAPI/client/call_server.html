@@ -14,6 +14,8 @@
             // whenClick('btnHello3', helloGET2);
             whenClick('btnHello4', helloPOSTasJSON);
             whenClick('btnHello5', helloPOSTasFormData);
+            whenClick('btnMult1', multGET);
+            whenClick('btnMult2', multPOSTasJSON);
 
             function whenClick(id, handler) {
                 document.getElementById(id).addEventListener('click', handler);
@@ -109,6 +111,33 @@
 
 
 
+        async function multGET() {
+            const num1 = parseInt(document.querySelector('#form3 input[name="num1"]').value, 10);
+            const num2 = parseInt(document.querySelector('#form3 input[name="num2"]').value, 10);
+            const num3 = parseInt(document.querySelector('#form3 input[name="num3"]').value, 10);
+            const fetchURL = `${URL}/Mult1/${num1}/${num2}/${num3}`;
+            try {
+                alert(await byGET(fetchURL));
+            }
+            catch (error) {
+                console.error("ERROR:", error);
+            }
+        }
+
+
+        async function multPOSTasJSON() {
+            const num1 = parseInt(document.querySelector('#form4 input[name="num1"]').value, 10);
+            const num2 = parseInt(document.querySelector('#form4 input[name="num2"]').value, 10);
+            const num3 = parseInt(document.querySelector('#form4 input[name="num3"]').value, 10);
+            const fetchURL = `${URL}/Mult2`;
+            try {
+                alert(await byPOSTasJSON(fetchURL, {num1, num2, num3} ));
+            }
+            catch (erro) {
+                console.error("ERROR:", error);
+            }
+        }
+
     </script>
 </head>
 <body>
@@ -194,6 +223,43 @@
         </form>
     </section>
     
+
+
+    <section>
+        <h1>Multiplicação por FETCH GET e POST</h1>
+        <form id="form3">
+            <h2>Multiplicação de três números por GET</h2>
+            <div>
+                <label>Numero 1</label>
+                <input type="number" name="num1">
+            </div>
+            <div>
+                <label>Numero 2</label>
+                <input type="number" name="num2">
+            </div>
+            <div>
+                <label>Numero 3</label>
+                <input type="number" name="num3">
+            </div>
+            <button id="btnMult1" type="submit">Multiplica</button>
+        </form>
+        <form id="form4">
+            <h2>Multiplicação três números por POST</h2>
+            <div>
+                <label>Numero 1</label>
+                <input type="number" name="num1">
+            </div>
+            <div>
+                <label>Numero 2</label>
+                <input type="number" name="num2">
+            </div>
+            <div>
+                <label>Numero 3</label>
+                <input type="number" name="num3">
+            </div>
+            <button id="btnMult2" type="submit">Multiplica</button>
+        </form>
+    </section>
     
 </body>
 </html>

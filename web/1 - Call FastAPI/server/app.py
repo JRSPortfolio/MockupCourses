@@ -70,6 +70,24 @@ async def hello2(request: Request):
     return f"O resultado da soma é: {int(form_data['num1']) + int(form_data['num2'])}"
 
 
+
+@app.get('/Mult1/{num1}/{num2}/{num3}')
+async def Mult1(num1: int, num2: int, num3: int):
+    return f"Resultado da multiplicação: {num1 * num2 * num3}"
+
+class MultArgs(BaseModel):
+    num1: int
+    num2: int
+    num3: int
+#:
+
+@app.post('/Mult2')
+async def Mult2(numbers: MultArgs):
+    return f"Resultado da multiplicação: {numbers.num1 * numbers.num2 * numbers.num3}"
+#:
+
+
+
 ################################################################################
 
 def main(): 

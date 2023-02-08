@@ -50,22 +50,70 @@ class Produto:
         return PRODUCT_TYPES(self.tipo)
     
     def __str__(self):
-        return f"Produto[id: {self.id} nome: {self.nome} tipo: {self.tipo} quantidade: {self.quantidade} preco: {self.preco}]"
+        cls_name = self.__class__.__name__
+        #return f"Produto[id: {self.id} nome: {self.nome} tipo: {self.tipo} quantidade: {self.quantidade} preco: {self.preco}]"
+        return f'{cls_name}[id_ = {self.id} nome = "{self.nome}" tipo = "{self.tipo}" quantidade = "{self.quantidade}" preço = "{self.preco}"]'
     #:
 #:
 
+class InvalidProdAttribute(ValueError):
+    pass
+
+class CatalogoProdutos:
+    def __init__(self):
+        self._prods = {}
+        
+    def append(self, prod: Produto):
+        if prod.id in self._prods:
+            raise DuplicateValue(f"Já existe produto com id {prod.id} no catalogo.")
+        self._prods[prod.id] = prod     
+    
+    def _dump(self):
+        for prod, n in self._prods.items():
+            print(prod, n)
+    
+    def obtem_por_id(self, id: int):
+        return {self._prods.get(id)}
+    
+    def pesquisa(self, criterio):
+        encontrados = CatalogoProdutos()
+        for prod in self._prods.values:
+            if criterio(prod):
+                encontrados.append(prod)
+        return encontrados
+    
+    def __str__(self):
+        class_name = self.__class__.__name__
+        return f'{class_name} [Quantidade de Produtos: {len(self._prods)}]'
+    
+    def __len__(self):
+        return len(self._prods)
+    
+    def __iter__(self):
+        for prod in self._prods.values():
+            yield prod        
+         
+class DuplicateValue(Exception):
+    ...
+    
+
 def main():
-    prod1 = Produto(30987, "pão de milho", "AL", 10, dec('1'))
-    prod2 = Produto(30098, "leite mimosa", "AL",25, dec('2'))
+    produtos = CatalogoProdutos()
+    produtos.append(Produto(30987, "pão de milho", "AL", 10, dec('1')))
+    produtos.append(Produto(30098, "leite mimosa", "AL",25, dec('2')))
+    produtos.append(Produto(21109,"fairy","DL",20,dec('3')))
+        
+    produtos._dump()
+    print(produtos)
 
-    print(prod1)
-    print(prod2)
+    # print(prod1)
+    # print(prod2)
 
-    try:
-        Produto(39877, "leite mimosa", "AL", 1, dec(0))
-    except ValueError as ex:
-        print("ATENÇÃO: Produto inválido!")
-        print(ex)
+    # try:
+    #     Produto(39877, "leite mimosa", "AL", 1, dec(0))
+    # except ValueError as ex:
+    #     print("ATENÇÃO: Produto inválido!")
+    #     print(ex)
 #:
 
 if __name__ == '__main__':

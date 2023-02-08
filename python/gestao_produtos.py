@@ -26,17 +26,17 @@ PRODUCT_TYPES = {'AL' : 'Alimentação', 'DL' : 'Detergente p/ loiça', 'FRL' : 
 class Produto:
     def __init__(self, id: int, nome: str, tipo: str, quantidade: int, preco: dec):
         if id < 0 or len(str(id)) != 5:
-            raise ValueError(f'{id=} inválido (deve ser > 0 e ter 5 dígitos)')
+            raise InvalidProdAttribute(f'{id=} inválido (deve ser > 0 e ter 5 dígitos)')
         if not nome:
-            raise ValueError (f"{nome=} nome não pode ser vazio")
+            raise InvalidProdAttribute (f"{nome=} nome não pode ser vazio")
         # if len(nome) == 0:
         #     raise ValueError (f"{nome=} nome não pode ser vazio")
         if quantidade < 0:
-            raise ValueError(f"{quantidade=} a quantidade deve ser > 0")
+            raise InvalidProdAttribute(f"{quantidade=} a quantidade deve ser > 0")
         if tipo not in PRODUCT_TYPES:
-            raise ValueError(f"{tipo=} não se encontra na lista de produtos")
+            raise InvalidProdAttribute(f"{tipo=} não se encontra na lista de produtos")
         if preco <= 0:
-            raise ValueError (f"{preco=} o preço têm de ser > 0")
+            raise InvalidProdAttribute (f"{preco=} o preço têm de ser > 0")
         
         self.id = id
         self.nome = nome
@@ -95,7 +95,12 @@ class CatalogoProdutos:
          
 class DuplicateValue(Exception):
     ...
-    
+
+#Leitura de ficheiros
+
+def le_produtos(caminho_fich: str):
+    prods = CatalogoProdutos()
+    return prods
 
 def main():
     produtos = CatalogoProdutos()

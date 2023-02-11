@@ -1,6 +1,7 @@
 import sys
 import subprocess
-import viaturas_classes_validacoes as vcv 
+from viaturas_classes_validacoes import *
+from op_ficheiros import * 
 
 CSV_DEFAULT_DELIM = ','
 DEFAULT_INDENTATION = 5
@@ -36,44 +37,44 @@ def crit_pesquisa():
         match esc:
             case '1':
                 procura = entrada("Insira a matricula: ")
-                vcv.val_mat(procura)
-                break
+                val_mat(procura)
+                return procura
             case '2':
                 procura = entrada("Insira a marca: ")
-                vcv.val_marca(procura)
-                break
+                val_marca(procura)
+                return procura
             case '3':
                 procura = entrada("Insira o modelo: ")
-                vcv.val_modelo(procura)
-                break
+                val_modelo(procura)
+                return procura
             case '4':
                 procura = entrada("Insira a data: ")
-                vcv.val_data(procura)
-                break
+                val_data(procura)
+                return procura
             case 'V':
                 exibe_msg("Voltando ao menu anterior...")
                 break
             case other:
                 exibe_msg("Opção inválida, escolha novamente...")
-    if procura:
-        return procura
     
-def add_car(carros: vcv.CatalogoCarros):
+def add_car(carros: CatalogoCarros):
     matricula = entrada("Insira a matricula: ")
     marca = entrada("Insira a marca: ")
     modelo = entrada("Insira o modelo: ")
     data = entrada("Insira a data: ")
     try:
-        carros.append(vcv.Carro(matricula, marca, modelo, data))
+        carros.append(Carro(matricula, marca, modelo, data))
         exibe_msg("Veiculo Adicionado.")
-    except vcv.AtributoInvalido as ai:
-        exibe_msg(f"Erro de inserção: {ai}")    
+    except AtributoInvalido as ai:
+        exibe_msg(f"Erro de inserção: {ai}")
+    except ValorDuplicado as vd:
+        exibe_msg(f"Erro de inserção: {vd}")     
     pause()
     print()
     
-def rem_car(carros: vcv.CatalogoCarros):
+def rem_car(carros: CatalogoCarros):
     remover = entrada("Insira a matricula do veiculo a remover: ")
-    vcv.val_mat(remover)
+    val_mat(remover)
     if remover in carros.valores_carros:
         carros.valores_carros.pop(remover)
         exibe_msg(f"Veiculo com a matricula {remover} removido.")
@@ -82,7 +83,7 @@ def rem_car(carros: vcv.CatalogoCarros):
     pause()
     print()     
 
-def menu(carros: vcv.CatalogoCarros):
+def menu(carros: CatalogoCarros):
     while True:
         exibe_msg("***********************************")
         exibe_msg("* MENU:                           *")
@@ -90,7 +91,7 @@ def menu(carros: vcv.CatalogoCarros):
         exibe_msg("* 2 - Pesquisar Viaturas          *")
         exibe_msg("* 3 - Adicionar Viatura           *")
         exibe_msg("* 4 - Remover Viatura             *")
-        exibe_msg("* 5 - Actualizar Catalogo         *")
+        exibe_msg("* 5 - Gravar Catalogo             *")
         exibe_msg("* 6 - Recarregar Catalogo         *")
         exibe_msg("* T - Terminar                    *")
         exibe_msg("***********************************")
@@ -103,8 +104,13 @@ def menu(carros: vcv.CatalogoCarros):
             case '2':
                 pesquisa = crit_pesquisa()
                 #carros.pesquisa_catalogo(pesquisa)
-                exibe_msg("Veiculos encontrados:")
-                exibe_msg(f"{carros.pesquisa(pesquisa)}")
+                if pesquisa:
+                    resultado = carros.pesquisa(pesquisa)
+                    if resultado:
+                        exibe_msg("Veiculos encontrados: ")   
+                        exibe_msg(f"{resultado}")
+                    else:
+                        exibe_msg("Não foram encontrados veiculos.")
                 print()
                 pause()
             case '3':

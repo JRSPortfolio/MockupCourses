@@ -31,31 +31,15 @@ class CatalogoCarros:
     
     def pes_matricula(self, mat: str):
         return {self._prods.get(mat)}
-    
-    # def pesquisa(self, criterio, valor):
-    #     encontrados = CatalogoCarros()
-    #     try:    
-    #         crit = criterio()
-    #         for car in self._carros.values():
-    #             if crit == car.matricula or crit == car.marca or crit == car.marca or crit == car.data:
-    #                 encontrados.append(car)
-    #         if encontrados:
-    #             print("\tVeiculos Encontrados:")        
-    #             for c in encontrados:
-    #                 print (f"\t{c}")
-    #         else:
-    #             print("\tNão foram encontrados veiculos.")        
-    #     except AtributoInvalido as ai:
-    #         print("Erro na pesquisa")
-    #         print(ai)
-            
+                
     def pesquisa(self, criterio):
         encontrados = CatalogoCarros()
         for car in self._carros.values():
             list_cars = [car.matricula, car.marca, car.modelo, car.data]
             if criterio in list_cars:
                 encontrados.append(car)
-        return encontrados
+        if encontrados:
+            return encontrados
     
     def pesquisa_catalogo(self, valor):
         if valor in self._carros.values():

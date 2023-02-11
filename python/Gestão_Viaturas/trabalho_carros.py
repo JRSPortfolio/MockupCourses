@@ -1,12 +1,12 @@
-import viaturas_instrucoes as vi
+from viaturas_instrucoes import *
                     
 def main():
-    carros = vi.vcv.CatalogoCarros()
+    carros = CatalogoCarros()
     try:
-        carros.append(vi.vcv.Carro("10-XY-20","Opel","Corsa XL","2019-10-15"))
-        carros.append(vi.vcv.Carro("20-PQ-15","Mercedes","300SL","2017-05-31"))
-        carros.append(vi.vcv.Carro("AF-58-HJ","Honda","Civic","2020-02-29"))
-        carros.append(vi.vcv.Carro("AD-88-LP","Mercedes","300S","2022-01-31"))
+        carros.append(Carro("10-XY-20","Opel","Corsa XL","2019-10-15"))
+        carros.append(Carro("20-PQ-15","Mercedes","300SL","2017-05-31"))
+        carros.append(Carro("AF-58-HJ","Honda","Civic","2020-02-29"))
+        carros.append(Carro("AD-88-LP","Mercedes","300S","2022-01-31"))
         #carros.append(Carro("DD-FF-DD","BMW","Serie5","2018-10-12"))
         #carro5 = Carro("34-84-FR","Volvo","S40","29-02-2021")
         #carro6 = Carro("PO-78-85","","i30","20-10-2022")
@@ -29,7 +29,7 @@ def main():
     carros._dump()
     print(carros)
         
-    vi.menu(carros)
+    menu(carros)
     
 if __name__ == "__main__":
     main()

@@ -1,6 +1,8 @@
 import re
 from datetime import date
 
+CSV_DEFAULT_DELIM = ','
+
 class Carro:
     def __init__ (self, matricula, marca, modelo, data):
         val_mat(matricula)
@@ -15,6 +17,16 @@ class Carro:
     
     def __str__ (self):
         return f"Marca : {self.marca} - Modelo: {self.modelo} - Matricula: {self.matricula} - Data: {self.data}"
+    
+    @classmethod
+    def from_csv(cls, linha: str, delim = CSV_DEFAULT_DELIM):
+        attrs = linha.split(delim)
+        return Carro(
+            matricula = str(attrs[0]),
+            marca = str(attrs[1]),
+            modelo = str(attrs[2]),
+            data = str(attrs[3])
+        )    
         
 class CatalogoCarros:
     def __init__(self):
@@ -62,7 +74,7 @@ class CatalogoCarros:
     @property
     def valores_carros(self):
         return self._carros  
-
+    
 class AtributoInvalido(ValueError):
     pass
 
@@ -79,10 +91,10 @@ def val_mat(matricula):
         raise AtributoInvalido (f"{matricula=} Matricula em formato inválido")
                              
 def val_data(data):
-    if date.fromisoformat(data):
-        pass
-    else:
-        AtributoInvalido(f"{data} não é uma data válida")
+    try:
+        date.fromisoformat(data)
+    except:
+       raise AtributoInvalido(f"{data} não é uma data válida")
  
 def val_marca (marca):    
     if not marca:

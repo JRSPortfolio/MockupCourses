@@ -5,10 +5,6 @@ CSV_DEFAULT_DELIM = ','
 
 class Carro:
     def __init__ (self, matricula, marca, modelo, data):
-        val_mat(matricula)
-        val_marca(marca)
-        val_modelo(modelo)
-        val_data(data)
         
         self.matricula = matricula
         self.marca = marca
@@ -40,10 +36,7 @@ class CatalogoCarros:
     def _dump(self):
         for m, i in self._carros.items():
             print(m, i)
-    
-    def pes_matricula(self, mat: str):
-        return {self._prods.get(mat)}
-                
+                  
     def pesquisa(self, criterio):
         encontrados = CatalogoCarros()
         for car in self._carros.values():
@@ -80,26 +73,3 @@ class AtributoInvalido(ValueError):
 
 class ValorDuplicado(Exception):
     pass
-
-def val_mat(matricula):
-    vmat1 = r"\d\d-[A-Z]{2}-\d\d"
-    vmat2 = r"[A-Z]{2}-\d\d-\d\d"
-    vmat3 = r"\d\d-\d\d-[A-Z]{2}"
-    vmat4 = r"[A-Z]{2}-\d\d-[A-Z]{2}"
-    vmat = re.search(f"{vmat1}|{vmat2}|{vmat3}|{vmat4}", matricula)
-    if not vmat:
-        raise AtributoInvalido (f"{matricula=} Matricula em formato inválido")
-                             
-def val_data(data):
-    try:
-        date.fromisoformat(data)
-    except:
-       raise AtributoInvalido(f"{data} não é uma data válida")
- 
-def val_marca (marca):    
-    if not marca:
-        raise AtributoInvalido (f'O campo "marca" deve ser preechido.')
-                
-def val_modelo(modelo):
-    if not modelo:
-        raise AtributoInvalido (f'O campo "modelo" deve ser preechido.')

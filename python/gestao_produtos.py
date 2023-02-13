@@ -6,13 +6,14 @@ Programa para gestão do catálogo de produtos. Este programa permite:
     - Guardar o catálogo em ficheiro
 """
 
-from decimal import Decimal as dec
+from decimal import Decimal as dec, InvalidOperation as io
 import subprocess
 import sys
 from typing import TextIO
 
 CSV_DEFAULT_DELIM = ','
 DEFAULT_INDENTATION = 3
+FILEPATH = 'python\\produtos_rasc.csv'
 
 ################################################################################
 ##
@@ -90,7 +91,7 @@ class CatalogoProdutos:
     
     def pesquisa(self, criterio):
         encontrados = CatalogoProdutos()
-        for prod in self._prods.values:
+        for prod in self._prods.values():
             if criterio(prod):
                 encontrados.append(prod)
         return encontrados
@@ -104,12 +105,20 @@ class CatalogoProdutos:
     
     def __iter__(self):
         for prod in self._prods.values():
-            yield prod        
+            yield prod  
+            
+    @property
+    def list_produtos(self):
+        return self._prods   
          
 class DuplicateValue(Exception):
     ...
 
-#Leitura de ficheiros
+###########################################################
+##
+##              Leitura e Escrita de ficheiros
+##
+###########################################################
 
 def le_produtos(caminho_fich: str, delim = CSV_DEFAULT_DELIM):
     prods = CatalogoProdutos()
@@ -127,7 +136,37 @@ def linhas_relevantes(fich: TextIO):
             continue
         yield linha
 
-#Menu, Opções e Interacção com o utilizador
+def add_produto(caminho_fich: str, prod: Produto):
+    with open (caminho_fich, 'at') as fich:
+        fich.write(f"{prod.id},{prod.nome},{prod.tipo},{prod.quantidade},{prod.preco}\n") 
+        
+def rem_produto(caminho_fich: str, iden: int):
+    with open(caminho_fich, "rt") as fich:
+        linhas = fich.readlines()
+    with open(caminho_fich, "wt") as fich:
+        for linha in linhas:
+            if linha[0:5] != str(iden):
+                fich.write(linha)
+                
+def actualizar_produtos(caminho_fich: str, produtos: CatalogoProdutos, lista_ids: list):               
+    with open(FILEPATH, 'rt') as fich:
+        for linha in linhas_relevantes(fich):
+            for prod in produtos:
+                if linha[0:5] == str(prod.id):
+                    lista_ids.append(prod.id)
+    with open(FILEPATH, 'at') as fich:
+        for prod in produtos:
+            if prod.id not in lista_ids:
+                fich.write(f"{prod.id},{prod.nome},{prod.tipo},{prod.quantidade},{prod.preco}\n")   
+                
+#######################################################################
+##
+##
+##            Menu, Opções e Interacção com o utilizador
+##
+##
+#######################################################################
+
 def exibe_msg(*args, indent = DEFAULT_INDENTATION, **kargs):
     print(' ' * (indent - 1), *args, **kargs)
     
@@ -141,13 +180,13 @@ def cls():
         subprocess.run(['clear'], check=True)
         
 def pause(msg: str="Pressione ENTER para continuar...", indent = DEFAULT_INDENTATION):
-    print(f"{' ' * indent}{msg}")
+    input(f"{' ' * indent}{msg}")
 
 produtos = CatalogoProdutos()
 
 def exec_menu():
     while True:
-        cls()
+        #cls()
         exibe_msg("***************************************")
         exibe_msg("* L - Listar Catlálogo                *")
         exibe_msg("* P - Pesquisar por ID                *")
@@ -163,8 +202,16 @@ def exec_menu():
         
         if opcao in ('L', 'LISTAR'):
             exec_listar()
+        elif opcao in ('P', 'PESQUISAR'):
+            exec_pesquisar()
+        elif opcao in ('A', 'ACRESCENTAR'):            
+            exec_add()
         elif opcao in ('T', 'TERMINAR'):
             exec_terminar()
+        elif opcao in ('E', 'ELIMINAR'):
+            exec_eleminar()
+        elif opcao in ('G', 'GUARDAR'):
+            exec_guardar()
         else:
             exibe_msg(f"opção{opcao} inválida.")
             pause()
@@ -182,12 +229,98 @@ def exec_listar():
     print()
     pause()
     
+def exec_pesquisar():
+    print()
+    pesq = int(entrada("Insira o nº de ID a pesquisar: "))
+    
+    def criterio_pes(prod: Produto, valor = pesq):
+        if prod.id == valor:
+            return True
+        
+    encontrados = produtos.pesquisa(criterio_pes)
+    
+    if encontrados:    
+        exibe_msg("Foi encontrado:")
+        exibe_msg(f"ID: {encontrados.list_produtos[pesq].id} || Tipo: {encontrados.list_produtos[pesq].tipo}\
+ || Quantidade: {encontrados.list_produtos[pesq].quantidade} || Preço: {encontrados.list_produtos[pesq].preco}")
+    else:
+        exibe_msg(f"Não foi encontrado ID {pesq}")
+    print()
+    pause()
+    
+def exec_add():
+    try:
+        iden = int(entrada("Insira o ID do produto: "))
+    except ValueError as ipa:
+        exibe_msg(f"Erro de inserção: {ipa}")
+        print()
+        return 
+    for prod in produtos:
+        if prod.id == iden:
+            exibe_msg(f"Já existe um produto com o codigo {iden}")
+            print()
+            pause()
+            return
+    nome = entrada("Insira o nome do produto: ")
+    tipo = entrada("Insira o tipo do produto: ")
+    try:    
+        quant = int(entrada("Insira o quantidade do produto: "))
+    except ValueError as ipa:
+        exibe_msg(f"Erro de inserção: {ipa}")
+        print()
+        pause()
+        return
+    try:
+        preco = dec(entrada("Insira o preco do produto: "))
+    except io as ipa:
+        exibe_msg(f"Erro de inserção: {ipa}")
+        print()
+        pause()
+        return
+    try:
+        prod = Produto(iden,nome,tipo,quant,preco)
+        add_produto(FILEPATH, prod)
+        produtos.append(prod)
+    except InvalidProdAttribute as ipa:
+        exibe_msg(f"Erro de inserção: {ipa}")
+        print()
+        pause()
+        
+def exec_eleminar():
+    try:
+        iden = int(entrada("Insira o ID do produto a eliminar: "))
+    except ValueError as ipa:
+        exibe_msg(f"Erro de inserção: {ipa}")
+        print()
+        pause()
+        return 
+    if iden in produtos.list_produtos.keys():
+        produtos.list_produtos.pop(iden)
+        # with open (FILEPATH, 'wt') as fich:
+        #     for prod in produtos:
+        #         fich.write(f"{prod.id},{prod.nome},{prod.tipo},{prod.quantidade},{prod.preco}\n")
+        rem_produto(FILEPATH, iden)
+        exibe_msg(f"Produto com o codigo {iden} removido")
+        print()
+        pause()
+    else:
+        exibe_msg(f"Não foi encontrado produto com o codigo {iden}")
+        print()
+        pause()    
+
+def exec_guardar():
+    id_fich = []
+    actualizar_produtos(FILEPATH, produtos, id_fich)
+    exibe_msg("Catalogo Guardado.")
+    print()
+    pause()            
+    
 def exec_terminar():
-    SystemExit(0)
+    sys.exit(0)
         
 def main():
     global produtos
-    produtos = le_produtos('python\\produtos.csv')
+    produtos = le_produtos(FILEPATH)
     exec_menu()
     
     

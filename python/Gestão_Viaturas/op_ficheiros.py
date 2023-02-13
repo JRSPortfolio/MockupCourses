@@ -1,4 +1,4 @@
-from viaturas_classes_validacoes import *
+from viaturas_classes import *
 from typing import TextIO
 
 FILEPATH = "python\\Gestão_Viaturas\\viaturas_rasc.csv"

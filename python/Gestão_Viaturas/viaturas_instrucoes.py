@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from viaturas_classes_validacoes import *
+#from viaturas_classes import *
 from op_ficheiros import *
 
 DEFAULT_INDENTATION = 5
@@ -19,6 +19,29 @@ def cls():
         
 def pause(msg: str="Pressione ENTER para continuar...", indent = DEFAULT_INDENTATION):
     input(f"{' ' * indent}{msg}")
+    
+def val_mat(matricula):
+    vmat1 = r"\d\d-[A-Z]{2}-\d\d"
+    vmat2 = r"[A-Z]{2}-\d\d-\d\d"
+    vmat3 = r"\d\d-\d\d-[A-Z]{2}"
+    vmat4 = r"[A-Z]{2}-\d\d-[A-Z]{2}"
+    vmat = re.search(f"{vmat1}|{vmat2}|{vmat3}|{vmat4}", matricula)
+    if not vmat:
+        raise AtributoInvalido (f"{matricula=}  em formato inválido")
+                             
+def val_data(data):
+    try:
+        date.fromisoformat(data)
+    except:
+       raise AtributoInvalido(f"{data=} não é uma data válida")
+ 
+def val_marca (marca):    
+    if not marca:
+        raise AtributoInvalido (f'O campo "marca" deve ser preechido.')
+                
+def val_modelo(modelo):
+    if not modelo:
+        raise AtributoInvalido (f'O campo "modelo" deve ser preechido.')
         
 def menu(carros):
     while True:
@@ -121,17 +144,42 @@ def crit_pesquisa():
                 exibe_msg("Opção inválida, escolha novamente...")
     
 def add_car(carros: CatalogoCarros):
-    matricula = entrada("Insira a matricula: ")
-    marca = entrada("Insira a marca: ")
-    modelo = entrada("Insira o modelo: ")
-    data = entrada("Insira a data: ")
-    try:
-        carros.append(Carro(matricula, marca, modelo, data))
-        exibe_msg("Veiculo Adicionado.")
+    try:   
+        matricula = entrada("Insira a matricula: ")
+        val_mat(matricula)
     except AtributoInvalido as ai:
-        exibe_msg(f"Erro de inserção: {ai}")
-    except ValorDuplicado as vd:
-        exibe_msg(f"Erro de inserção: {vd}")     
+        exibe_msg(ai)
+        print()
+        pause()
+        return
+    try:
+        marca = entrada("Insira a marca: ")
+        val_marca(marca)
+    except AtributoInvalido as ai:
+        exibe_msg(ai)
+        print()
+        pause()
+        return
+    try:
+        modelo = entrada("Insira o modelo: ")
+        val_modelo(modelo)
+    except AtributoInvalido as ai:
+        exibe_msg(ai)
+        print()
+        pause()
+        return
+    try:
+        data = entrada("Insira a data: ")
+        val_data(data)
+    except AtributoInvalido as ai:
+        exibe_msg(ai)
+        print()
+        pause()
+        return
+
+    carros.append(Carro(matricula, marca, modelo, data))
+    exibe_msg("Veiculo Adicionado.")
+   
     pause()
     print()
     

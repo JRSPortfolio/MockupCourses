@@ -233,11 +233,13 @@ def exec_pesquisar():
     print()
     pesq = int(entrada("Insira o nº de ID a pesquisar: "))
     
-    def criterio_pes(prod: Produto, valor = pesq):
-        if prod.id == valor:
-            return True
+    # def criterio_pes(prod: Produto, valor = pesq):
+    #     if prod.id == valor:
+    #         return True
+    
+    produtos.obtem_por_id(pesq)
         
-    encontrados = produtos.pesquisa(criterio_pes)
+    encontrados = produtos.pesquisa(produtos.obtem_por_id)
     
     if encontrados:    
         exibe_msg("Foi encontrado:")

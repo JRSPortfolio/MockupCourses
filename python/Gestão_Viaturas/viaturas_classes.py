@@ -4,7 +4,7 @@ from datetime import date
 CSV_DEFAULT_DELIM = ','
 
 class Carro:
-    def __init__ (self, matricula, marca, modelo, data):
+    def __init__ (self, matricula: str, marca: str, modelo: str, data: str):
         
         self.matricula = matricula
         self.marca = marca

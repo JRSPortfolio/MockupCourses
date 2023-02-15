@@ -20,7 +20,7 @@ def cls():
 def pause(msg: str="Pressione ENTER para continuar...", indent = DEFAULT_INDENTATION):
     input(f"{' ' * indent}{msg}")
     
-def val_mat(matricula):
+def val_mat(matricula: str):
     vmat1 = r"\d\d-[A-Z]{2}-\d\d"
     vmat2 = r"[A-Z]{2}-\d\d-\d\d"
     vmat3 = r"\d\d-\d\d-[A-Z]{2}"
@@ -29,21 +29,21 @@ def val_mat(matricula):
     if not vmat:
         raise AtributoInvalido (f"{matricula=}  em formato inválido")
                              
-def val_data(data):
+def val_data(data: str):
     try:
         date.fromisoformat(data)
     except:
        raise AtributoInvalido(f"{data=} não é uma data válida")
  
-def val_marca (marca):    
+def val_marca (marca: str):    
     if not marca:
         raise AtributoInvalido (f'O campo "marca" deve ser preechido.')
                 
-def val_modelo(modelo):
+def val_modelo(modelo: str):
     if not modelo:
         raise AtributoInvalido (f'O campo "modelo" deve ser preechido.')
         
-def menu(carros):
+def menu(carros: CatalogoCarros):
     while True:
         cls()
         exibe_msg("***********************************")

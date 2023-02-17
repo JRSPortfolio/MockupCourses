@@ -1,8 +1,7 @@
 from viaturas_instrucoes import *
                     
 def main():
-    carros = ler_carros(FILEPATH) 
-    
+    carros = ler_carros(FILEPATH)
     menu(carros)
     
 if __name__ == "__main__":

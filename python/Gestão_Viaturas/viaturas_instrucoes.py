@@ -1,6 +1,5 @@
 import sys
 import subprocess
-#from viaturas_classes import *
 from op_ficheiros import *
 
 DEFAULT_INDENTATION = 5
@@ -21,13 +20,13 @@ def pause(msg: str="Pressione ENTER para continuar...", indent = DEFAULT_INDENTA
     input(f"{' ' * indent}{msg}")
     
 def val_mat(matricula: str):
-    vmat1 = r"\d\d-[A-Z]{2}-\d\d"
-    vmat2 = r"[A-Z]{2}-\d\d-\d\d"
-    vmat3 = r"\d\d-\d\d-[A-Z]{2}"
-    vmat4 = r"[A-Z]{2}-\d\d-[A-Z]{2}"
+    vmat1 = r"^\d\d-[A-Z]{2}-\d\d$"
+    vmat2 = r"^[A-Z]{2}-\d\d-\d\d$"
+    vmat3 = r"^\d\d-\d\d-[A-Z]{2}$"
+    vmat4 = r"^[A-Z]{2}-\d\d-[A-Z]{2}$"
     vmat = re.search(f"{vmat1}|{vmat2}|{vmat3}|{vmat4}", matricula)
     if not vmat:
-        raise AtributoInvalido (f"{matricula=}  em formato inválido")
+        raise AtributoInvalido (f"{matricula=} em formato inválido")
                              
 def val_data(data: str):
     try:
@@ -45,7 +44,7 @@ def val_modelo(modelo: str):
         
 def menu(carros: CatalogoCarros):
     while True:
-        cls()
+        #cls()
         exibe_msg("***********************************")
         exibe_msg("* MENU:                           *")
         exibe_msg("* 1 - Listar Viaturas             *")             
@@ -60,9 +59,9 @@ def menu(carros: CatalogoCarros):
         esc = entrada("Opção: ").strip().upper()
         match esc:    
             case '1':
-                lis_viaturas(carros)
+                lis_viaturas(carros.ordenar_carros())
             case '2':
-                pes_viaturas(carros)
+                pes_viaturas(carros.ordenar_carros())
             case '3':
                 add_car(carros)
             case '4':
@@ -96,16 +95,14 @@ def pes_viaturas(carros: CatalogoCarros):
         if pesquisa:
             resultado = carros.pesquisa(pesquisa)
             if resultado:
-                exibe_msg("Veiculos encontrados: ")   
-                exibe_msg(f"{resultado}")
+                lis_viaturas(resultado)
             else:
                 exibe_msg("Não foram encontrados veiculos.")
     except AtributoInvalido as ai:
         exibe_msg(f"Erro de inserção: {ai}")    
-    #carros.pesquisa_catalogo(pesquisa)
-    print()
-    pause()    
-                
+        print()
+        pause()  
+               
 def crit_pesquisa():
     procura = None
     while True:
@@ -199,7 +196,7 @@ def rem_car(carros: CatalogoCarros):
 
 def gravar_calalogo(carros: CatalogoCarros):
     gravar_carros(carros, FILEPATH)
-    exibe_msg("Catalogo Actualizado.")
+    exibe_msg("Catalogo Gravado no Ficheiro.")
     print()
     pause()
     

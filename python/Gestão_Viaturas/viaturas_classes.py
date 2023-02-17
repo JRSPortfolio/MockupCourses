@@ -24,6 +24,11 @@ class Carro:
             data = str(attrs[3])
         )    
         
+    def __iter__(self):
+        car_list = [self.matricula, self.marca, self.modelo, self.data]
+        for i in car_list:
+            yield i
+            
 class CatalogoCarros:
     def __init__(self):
         self._carros = {}
@@ -40,18 +45,18 @@ class CatalogoCarros:
     def pesquisa(self, criterio):
         encontrados = CatalogoCarros()
         for car in self._carros.values():
-            list_cars = [car.matricula, car.marca, car.modelo, car.data]
-            if criterio in list_cars:
+            if criterio in car:
                 encontrados.append(car)
         if encontrados:
             return encontrados
     
-    def pesquisa_catalogo(self, valor):
-        if valor in self._carros.values():
-            return True
-        else:
-            return False
-                       
+    def ordenar_carros(self):
+        carros_ordenados = CatalogoCarros()
+        lista_ordenada = sorted(self._carros.values(), key=lambda Carro: (Carro.marca, Carro.modelo, Carro.data))
+        for i in range(len(lista_ordenada)):
+            carros_ordenados.append(lista_ordenada[i])
+        return carros_ordenados
+                           
     def __str__(self):
         for car in self._carros.values():
             print(f"     {car}")

@@ -22,6 +22,8 @@ tutoriais:
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import schemas as sch
+#from schemas import ErrorCode
 
 
 app = FastAPI()
@@ -35,10 +37,11 @@ app.add_middleware(CORSMiddleware,
                    allow_headers=["*"])
 
 @app.post('/register')
-async def register(player: str):
+async def register(player: sch.PlayerRegister):
     return "Teste"
 
 ##########################################################################
+
 def main():
     import uvicorn
     from docopt import docopt
@@ -47,14 +50,29 @@ def main():
 A Web accessible FastAPI server that allow players to register/enroll for tournaments.
 
 Usage:
-    app.py [-c] [-p PORT] [-h HOST_IP]
+    app.py [-c | -c -d] [-p PORT] [-h HOST_IP]
     
 Options:
-    
+    -p PORT, --port=PORT        Listen on this port [default: 8000]
+    -c, --create-ddl            Create datamodel in the database
+    -d, --populate-db           Populate the DB with dummy for testing purposes
+    -h HOST_IP, --host=HOST_IP  Listen on this IP address [default: 127.0.0.1]
     
 """
+    args = docopt(help_doc)
+    create_ddl = args['--create-ddl']
+    populate_db = args['--populate-db']
     
-    uvicorn.run('app:app', reload=True, port=8000)
+    if create_ddl:
+        print("Will create ddl")
+        if populate_db:
+            print("Will also populate de DB")
+    
+        
+    uvicorn.run('app:app',
+                reload=True,
+                port = int(args['--port']),
+                host = args['--host'],)
     
 
 if __name__ == '__main__':

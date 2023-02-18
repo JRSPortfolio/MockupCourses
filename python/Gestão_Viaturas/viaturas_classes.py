@@ -1,5 +1,3 @@
-import re
-from datetime import date
 
 CSV_DEFAULT_DELIM = ','
 
@@ -37,11 +35,7 @@ class CatalogoCarros:
         if car.matricula in self._carros:
             raise ValorDuplicado(f"Já existe o carro com a matricula {car.matricula} no catalogo.")
         self._carros[car.matricula] = car    
-    
-    def _dump(self):
-        for m, i in self._carros.items():
-            print(m, i)
-                  
+                      
     def pesquisa(self, criterio):
         encontrados = CatalogoCarros()
         for car in self._carros.values():

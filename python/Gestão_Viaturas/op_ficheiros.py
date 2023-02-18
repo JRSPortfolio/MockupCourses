@@ -1,7 +1,7 @@
 from viaturas_classes import *
 from typing import TextIO
 
-FILEPATH = "python\\Gestão_Viaturas\\viaturas_rasc.csv"
+FILEPATH = "viaturas.csv"
 
 def ler_carros(caminho_fich: str, delim = CSV_DEFAULT_DELIM):
     carros = CatalogoCarros()
@@ -23,4 +23,9 @@ def gravar_carros(carros: CatalogoCarros, caminho_fich: str):
         for car in carros:
             fich.write(f"{car.matricula},{car.marca},{car.modelo},{car.data}\n")
     
-
+def remover_carro(carros: CatalogoCarros, caminho_fich: str, matricula: str):
+    if matricula in carros.valores_carros:
+        carros.valores_carros.pop(matricula)
+    with open(caminho_fich, "wt") as fich:
+        for car in carros:
+            fich.write(f"{car.matricula},{car.marca},{car.modelo},{car.data}\n")

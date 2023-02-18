@@ -1,5 +1,7 @@
 import sys
 import subprocess
+import re
+from datetime import date
 from op_ficheiros import *
 
 DEFAULT_INDENTATION = 5
@@ -27,6 +29,10 @@ def val_mat(matricula: str):
     vmat = re.search(f"{vmat1}|{vmat2}|{vmat3}|{vmat4}", matricula)
     if not vmat:
         raise AtributoInvalido (f"{matricula=} em formato inválido")
+
+def val_mat_duplicada(carros: CatalogoCarros, matricula: str):
+    if matricula in carros.valores_carros:
+        raise ValorDuplicado (f"{matricula=} já se encontra registada no catalogo.")
                              
 def val_data(data: str):
     try:
@@ -44,7 +50,7 @@ def val_modelo(modelo: str):
         
 def menu(carros: CatalogoCarros):
     while True:
-        #cls()
+        cls()
         exibe_msg("***********************************")
         exibe_msg("* MENU:                           *")
         exibe_msg("* 1 - Listar Viaturas             *")             
@@ -75,6 +81,8 @@ def menu(carros: CatalogoCarros):
                 break
             case other:
                 exibe_msg("opção inválida, escolha novamente.")
+                print()
+                pause()  
 
 def lis_viaturas(carros: CatalogoCarros):
     titulos = f"|{'Marca':^16}|{'Modelo':^20}|{'Data':^12}|{'Matricula':^14}|"
@@ -98,6 +106,8 @@ def pes_viaturas(carros: CatalogoCarros):
                 lis_viaturas(resultado)
             else:
                 exibe_msg("Não foram encontrados veiculos.")
+                print()
+                pause()  
     except AtributoInvalido as ai:
         exibe_msg(f"Erro de inserção: {ai}")    
         print()
@@ -144,8 +154,14 @@ def add_car(carros: CatalogoCarros):
     try:   
         matricula = entrada("Insira a matricula: ")
         val_mat(matricula)
+        val_mat_duplicada(carros, matricula)
     except AtributoInvalido as ai:
         exibe_msg(ai)
+        print()
+        pause()
+        return
+    except ValorDuplicado as vd:
+        exibe_msg(vd)
         print()
         pause()
         return
@@ -174,7 +190,13 @@ def add_car(carros: CatalogoCarros):
         pause()
         return
 
-    carros.append(Carro(matricula, marca, modelo, data))
+    try:
+        carros.append(Carro(matricula, marca, modelo, data))
+    except ValorDuplicado as vd:
+        exibe_msg(vd)
+        print()
+        pause()
+        return     
     exibe_msg("Veiculo Adicionado.")
    
     pause()
@@ -187,12 +209,16 @@ def rem_car(carros: CatalogoCarros):
         if remover in carros.valores_carros:
             carros.valores_carros.pop(remover)
             exibe_msg(f"Veiculo com a matricula {remover} removido.")
+            pause()
+            print() 
         else:
-            exibe_msg(f"Não foi encontrado veiculo com matricula {remover}")    
+            exibe_msg(f"Não foi encontrado veiculo com matricula {remover}")
+            pause()
+            print()                
     except AtributoInvalido as ai:
         exibe_msg(f"Erro de formato: {ai}")
-    pause()
-    print() 
+        pause()
+        print() 
 
 def gravar_calalogo(carros: CatalogoCarros):
     gravar_carros(carros, FILEPATH)

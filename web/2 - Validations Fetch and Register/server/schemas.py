@@ -19,15 +19,43 @@ won't be in other Pydantic models, for example, it won't be sent from the API wh
 reading a user.
 '''
 
+# NOTE: Notice that SQLAlchemy models define attributes using '=', and pass the type
+# s a parameter to Column like in:
+    
+#     name = Column(String)
+    
+# Whereas, Pydantic models declare the typees using Python native types and annotates
+# them with ':', the notation used in Python to declare types:
+    
+#     names: str
+    
+# Have it in mind, so you dont get confused when using '=' and ':' with them.
+
 from enum import Enum
 from pydantic import BaseModel, Field
 
-class PlayerRegister(BaseModel):
+class PlayerBase(BaseModel):
     full_name: str
-    email: str
-    password: str | None = Field(title="Loca portuguese phone number or international prefixed w/ + XYZ country code")
+    email: str  
+    
+class PlayerRegister(PlayerBase):
+    password: str
+    phone_number: str | None = Field(title="Loca portuguese phone number or international prefixed w/ + XYZ country code")
     birth_date: str | None
     level: str
     tournament_id: int | None
     
-       
+class PlayerRegisterResult(PlayerBase):
+    id: int
+
+class ErrorCode(Enum):
+    ERR_UNSPECIFIED_TOURNAMENT = "Missing tournament id."
+    ERR_PLAYER_ALREADY_ENROLLED = "Player already enrolled in tournament."
+    ERR_UNKNOWN_TOURNAMENT_ID = "Unknown tournament id."
+
+    def details(self, **kargs) -> dict:
+        details_dict = {'error_code': self.name, 'error_message': self.value}
+        details_dict.update(kargs)
+        return details_dict
+    
+    

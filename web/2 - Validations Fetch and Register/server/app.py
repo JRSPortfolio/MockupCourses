@@ -23,7 +23,7 @@ tutoriais:
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import schemas as sch
-#from schemas import ErrorCode
+from schemas import ErrorCode
 
 
 app = FastAPI()
@@ -37,8 +37,18 @@ app.add_middleware(CORSMiddleware,
                    allow_headers=["*"])
 
 @app.post('/register')
-async def register(player: sch.PlayerRegister):
-    return "Teste"
+async def register(player: sch.PlayerRegister)-> sch.PlayerRegisterResult:
+    tourn_id = player.tournament_id
+    if tourn_id is None:
+        raise HTTPException(status_code=400, detail=ErrorCode.ERR_UNSPECIFIED_TOURNAMENT.details())
+    
+    if tourn_id not in (1, 2, 3):
+        error = ErrorCode.ERR_UNKNOWN_TOURNAMENT_ID
+        raise HTTPException(status_code=404, detail=error.details(tourn_id = tourn_id))
+    
+    return sch.PlayerRegisterResult(id = 1105,
+                                    full_name = player.full_name,
+                                    email = player.email)
 
 ##########################################################################
 
@@ -59,6 +69,7 @@ Options:
     -h HOST_IP, --host=HOST_IP  Listen on this IP address [default: 127.0.0.1]
     
 """
+
     args = docopt(help_doc)
     create_ddl = args['--create-ddl']
     populate_db = args['--populate-db']

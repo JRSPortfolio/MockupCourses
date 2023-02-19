@@ -15,7 +15,7 @@ import {
 
 
 const URL = 'http://127.0.0.1:8000';
-const tournamentID = 1;
+const TOURNAMENT_ID = 1;
 
 addPredicates({
     fullName           : /^\p{Letter}{2,}( \p{Letter}{2,})+$/u,
@@ -36,6 +36,28 @@ window.addEventListener('load', function() {
     whenClick('reset', e => resetAllFields());
     whenClick('submit', validateAndSubmitForm);
 });
+
+async function validateAndSubmitForm(){
+    if(!validateAllFields()){
+        return;
+    }
+    const [responseOK, responseData] = await registerPlayer();
+    // ...
+}
+
+async function registerPlayer(){
+    const player = {
+        full_name:      bySel('[name = fullName]').value,
+        email:          bySel('[name = email]').value,
+        password:       bySel('[name = password]').value,
+        phone_number:   bySel('[name = phone_number]').value,
+        birth_date:     bySel('[name = birth_date]').value,
+        level:          bySel('[name = level]').value,
+        tournament_id:  TOURNAMENT_ID,
+    };
+    const response = await byPOSTasJSON(`${URL}/register`, player);
+    return [response.OK, response.json()];
+}
 
 /**
  * @param {Object} responseData 

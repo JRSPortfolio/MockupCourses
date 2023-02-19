@@ -36,14 +36,36 @@ class CatalogoCarros:
             raise ValorDuplicado(f"Já existe o carro com a matricula {car.matricula} no catalogo.")
         self._carros[car.matricula] = car    
                       
-    def pesquisa(self, criterio):
+    # def pesquisa(self, criterio):
+    #     encontrados = CatalogoCarros()
+    #     for car in self._carros.values():
+    #         if criterio in car:
+    #             encontrados.append(car)
+    #     if encontrados:
+    #         return encontrados
+        
+    def pesquisa(self, procura: str, tipo: str):
         encontrados = CatalogoCarros()
-        for car in self._carros.values():
-            if criterio in car:
-                encontrados.append(car)
+        match tipo:
+            case 'matricula':
+                for car in self._carros.values():
+                    if car.matricula == procura:
+                        encontrados.append(car)
+            case 'marca':
+                for car in self._carros.values():
+                    if car.marca == procura:
+                        encontrados.append(car)
+            case 'modelo':
+                for car in self._carros.values():
+                    if car.modelo == procura:
+                        encontrados.append(car)
+            case 'data':
+                for car in self._carros.values():
+                    if car.data == procura:
+                        encontrados.append(car)
         if encontrados:
             return encontrados
-    
+                    
     def ordenar_carros(self):
         carros_ordenados = CatalogoCarros()
         lista_ordenada = sorted(self._carros.values(), key=lambda Carro: (Carro.marca, Carro.modelo, Carro.data))

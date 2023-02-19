@@ -22,19 +22,17 @@ class Viaturas_Arranque:
     Poderá fazer alterações diretamente no ficheiro utilizando as opções abaixo indicadas.    
 
     Usage:
-        viaturas_main.py [-l] [-p | -p -v VALOR] [-a | -a -d MATRICULA MARCA MODELO DATA] [-r | -r -m MAT]
+        viaturas_main.py [-l] [-p | -p -v VALOR TIPO] [-a | -a -d MATRICULA MARCA MODELO DATA] [-r | -r -m MAT]
         
     Options:
         -l, --listar                                                            Listar as viaturas guardadas em ficheiro
         -p, --pesquisa                                                          Pesquisar viaturas gurdadas em ficheiro
-        -v VALOR, --valorpes=VALOR                                              Pesquisa uma matricula, marca, modelo ou data nos veiculos guardados
-                                                                                em ficheiro, usado com o comando -p
+        -v VALOR, --valorpes VALOR TIPO                                         Pesquisa uma matricula, marca, modelo ou data nos veiculos guardados, recebe o valor
+                                                                                a pesquisar seguido do tipo (MATRICULA, MARCA, MODELO, DATA), usado com o comando -p
         -a, --adiciona                                                          Adiciona uma viaturas ao ficheiro
-        -d MATRICULA MARCA MODELO DATA, --dados=MATRICULA MARCA MODELO DATA     Recebe dados de uma viatura para ser inserido em ficheiro,
-                                                                                usado com o comando -a 
+        -d MATRICULA MARCA MODELO DATA, --dados MATRICULA MARCA MODELO DATA     Recebe dados de uma viatura para ser inserido em ficheiro, usado com o comando -a 
         -r, --remover                                                           Remove uma viatura do ficheiro
-        -m MAT, --rem-mat=MAT                                                   Receve uma matricula para a viatura correspondente em
-                                                                                ficheiro ser removida, usada com o comando -r
+        -m MAT, --rem-mat MAT                                                   Receve uma matricula para a viatura correspondente em ficheiro ser removida, usada com o comando -r
 '''
         self.args = docopt(h_doc)
         self.listar = self.args['--listar']
@@ -60,12 +58,12 @@ class Viaturas_Arranque:
         carros = ler_carros(FILEPATH)
         
         if self.listar:
-            lis_viaturas(carros)
+            lis_viaturas(carros.ordenar_carros())
         elif self.pesquisa:
             if not self.valorpes:
                 pes_viaturas(carros)
             else:
-                self.pesquisa_valor(carros)
+                self.pesquisa_valor(carros.ordenar_carros())
         elif self.adiciona:
             if not self.add_dados:
                 add_car(carros)
@@ -80,13 +78,18 @@ class Viaturas_Arranque:
                 self.remover_valor(carros)
 
     def pesquisa_valor(self, carros: CatalogoCarros):
-        pesquisa = carros.pesquisa(self.valorpes)
-        if pesquisa:
-            lis_viaturas(pesquisa)
+        valor = self.args['--valorpes']
+        tipo = self.args['TIPO'].lower()
+        if tipo not in ['matricula', 'marca', 'modelo', 'data']:
+            exibe_msg(f"{tipo} não é um tipo válido")
         else:
-            exibe_msg("Não foram encontrados veiculos.")
-            print()
-            pause()
+            pesquisa = carros.pesquisa(valor, tipo)
+            if pesquisa:
+                lis_viaturas(pesquisa)
+            else:
+                exibe_msg("Não foram encontrados veiculos.")
+                print()
+                pause()
             
     def adiciona_valores(self, carros: CatalogoCarros):
         matricula = self.args['--dados']

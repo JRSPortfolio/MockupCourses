@@ -101,7 +101,7 @@ def pes_viaturas(carros: CatalogoCarros):
     try:
         pesquisa = crit_pesquisa()
         if pesquisa:
-            resultado = carros.pesquisa(pesquisa)
+            resultado = carros.pesquisa(pesquisa[0], pesquisa[1])
             if resultado:
                 lis_viaturas(resultado)
             else:
@@ -131,19 +131,23 @@ def crit_pesquisa():
             case '1':
                 procura = entrada("Insira a matricula: ")
                 val_mat(procura)
-                return procura
+                tipo = "matricula"
+                return procura, tipo
             case '2':
                 procura = entrada("Insira a marca: ")
                 val_marca(procura)
-                return procura
+                tipo = "marca"
+                return procura, tipo
             case '3':
                 procura = entrada("Insira o modelo: ")
                 val_modelo(procura)
-                return procura
+                tipo = "modelo"
+                return procura, tipo
             case '4':
                 procura = entrada("Insira a data: ")
                 val_data(procura)
-                return procura
+                tipo = "data"
+                return procura, tipo
             case 'V':
                 exibe_msg("Voltando ao menu anterior...")
                 break

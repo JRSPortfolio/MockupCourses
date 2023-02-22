@@ -1,8 +1,7 @@
 import sys
 import subprocess
-import re
-from datetime import date
 from op_ficheiros import *
+from viaturas_validacoes import *
 
 DEFAULT_INDENTATION = 5
             
@@ -20,34 +19,7 @@ def cls():
         
 def pause(msg: str="Pressione ENTER para continuar...", indent = DEFAULT_INDENTATION):
     input(f"{' ' * indent}{msg}")
-    
-def val_mat(matricula: str):
-    vmat1 = r"^\d\d-[A-Z]{2}-\d\d$"
-    vmat2 = r"^[A-Z]{2}-\d\d-\d\d$"
-    vmat3 = r"^\d\d-\d\d-[A-Z]{2}$"
-    vmat4 = r"^[A-Z]{2}-\d\d-[A-Z]{2}$"
-    vmat = re.search(f"{vmat1}|{vmat2}|{vmat3}|{vmat4}", matricula)
-    if not vmat:
-        raise AtributoInvalido (f"{matricula=} em formato inválido")
 
-def val_mat_duplicada(carros: CatalogoCarros, matricula: str):
-    if matricula in carros.valores_carros:
-        raise ValorDuplicado (f"{matricula=} já se encontra registada no catalogo.")
-                             
-def val_data(data: str):
-    try:
-        date.fromisoformat(data)
-    except:
-       raise AtributoInvalido(f"{data=} não é uma data válida")
- 
-def val_marca (marca: str):    
-    if not marca:
-        raise AtributoInvalido (f'O campo "marca" deve ser preechido.')
-                
-def val_modelo(modelo: str):
-    if not modelo:
-        raise AtributoInvalido (f'O campo "modelo" deve ser preechido.')
-        
 def menu(carros: CatalogoCarros):
     while True:
         cls()
@@ -80,7 +52,7 @@ def menu(carros: CatalogoCarros):
                 exibe_msg("A sair do programa.")
                 break
             case other:
-                exibe_msg("opção inválida, escolha novamente.")
+                exibe_msg("Opção inválida, escolha novamente.")
                 print()
                 pause()  
 
@@ -193,18 +165,18 @@ def add_car(carros: CatalogoCarros):
         print()
         pause()
         return
-
     try:
-        carros.append(Carro(matricula, marca, modelo, data))
-    except ValorDuplicado as vd:
-        exibe_msg(vd)
+        val_data_de_mat(matricula, data)
+    except AtributoInvalido as ai:
+        exibe_msg(ai)
         print()
         pause()
-        return     
+        return
+    
+    carros.append(Carro(matricula, marca, modelo, data))
     exibe_msg("Veiculo Adicionado.")
-   
-    pause()
     print()
+    pause()
     
 def rem_car(carros: CatalogoCarros):
     remover = entrada("Insira a matricula do veiculo a remover: ")

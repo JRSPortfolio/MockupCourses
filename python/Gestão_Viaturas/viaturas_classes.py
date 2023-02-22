@@ -32,18 +32,10 @@ class CatalogoCarros:
         self._carros = {}
         
     def append(self, car: Carro):
-        if car.matricula in self._carros:
-            raise ValorDuplicado(f"Já existe o carro com a matricula {car.matricula} no catalogo.")
+        # if car.matricula in self._carros:
+        #     raise ValorDuplicado(f"Já existe o carro com a matricula {car.matricula} no catalogo.")
         self._carros[car.matricula] = car    
-                      
-    # def pesquisa(self, criterio):
-    #     encontrados = CatalogoCarros()
-    #     for car in self._carros.values():
-    #         if criterio in car:
-    #             encontrados.append(car)
-    #     if encontrados:
-    #         return encontrados
-        
+                              
     def pesquisa(self, procura: str, tipo: str):
         encontrados = CatalogoCarros()
         match tipo:

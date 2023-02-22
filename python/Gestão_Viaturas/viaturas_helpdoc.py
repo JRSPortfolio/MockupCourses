@@ -2,7 +2,6 @@ from viaturas_instrucoes import *
 from docopt import docopt
 
 class Viaturas_Arranque:
-
     def __init__(self):
         h_doc = '''
     Programa de armazenamento de dados de viaturas em ficheiro CSV
@@ -61,7 +60,7 @@ class Viaturas_Arranque:
             lis_viaturas(carros.ordenar_carros())
         elif self.pesquisa:
             if not self.valorpes:
-                pes_viaturas(carros)
+                pes_viaturas(carros.ordenar_carros())
             else:
                 self.pesquisa_valor(carros.ordenar_carros())
         elif self.adiciona:
@@ -98,15 +97,21 @@ class Viaturas_Arranque:
         data = self.args['DATA']
         try:
             val_mat(matricula)
+            val_mat_duplicada(carros, matricula)
             val_marca(marca)
             val_modelo(modelo)
             val_data(data)
+            val_data_de_mat(matricula, data)
+            carros.append(Carro(matricula, marca, modelo, data))
+            gravar_calalogo(carros)
         except AtributoInvalido as ai:
             exibe_msg(ai)
             print()
             pause()
-        carros.append(Carro(matricula, marca, modelo, data))
-        gravar_calalogo(carros)
+        except ValorDuplicado as vd:
+            exibe_msg(vd)
+            print()
+            pause()          
         
     def remover_valor(self, carros: CatalogoCarros):
         matricula = self.args['--rem-mat']

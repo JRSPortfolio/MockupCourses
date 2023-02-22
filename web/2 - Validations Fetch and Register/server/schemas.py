@@ -40,7 +40,7 @@ class PlayerBase(BaseModel):
     
 class PlayerRegister(PlayerBase):
     password: str
-    phone_number: str | None = Field(title="Loca portuguese phone number or international prefixed w/ + XYZ country code")
+    phone_number: str | None = Field(title="Local portuguese phone number or international prefixed w/ + XYZ country code")
     birth_date: str | None
     level: str
     tournament_id: int | None
@@ -54,7 +54,7 @@ class ErrorCode(Enum):
     ERR_UNKNOWN_TOURNAMENT_ID = "Unknown tournament id."
 
     def details(self, **kargs) -> dict:
-        details_dict = {'error_code': self.name, 'error_message': self.value}
+        details_dict = {'error_code': self.name, 'error_msg': self.value}
         details_dict.update(kargs)
         return details_dict
     

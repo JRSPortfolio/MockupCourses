@@ -41,22 +41,36 @@ async function validateAndSubmitForm(){
     if(!validateAllFields()){
         return;
     }
-    const [responseOK, responseData] = await registerPlayer();
-    // ...
+    try{
+        const [responseOK, responseData] = await registerPlayer();
+        const showStatusFn = responseOK ? showSuccess : showError;
+        showStatusFn(responseData);
+        // if (responseOK) {
+        //     showSuccess (responseData);
+        // }
+        // else{
+        //     showError (responseData);
+        // }
+        // console.log(responseOK, responseData);
+    }
+    catch (error) {
+        console.error(`ERROR: An error as ocurred when connecting to server at ${URL}`);
+        console.error(error);
+    }
 }
 
 async function registerPlayer(){
     const player = {
-        full_name:      bySel('[name = fullName]').value,
-        email:          bySel('[name = email]').value,
-        password:       bySel('[name = password]').value,
-        phone_number:   bySel('[name = phone_number]').value,
-        birth_date:     bySel('[name = birth_date]').value,
-        level:          bySel('[name = level]').value,
-        tournament_id:  TOURNAMENT_ID,
+        full_name       :bySel('[name=fullName]').value,
+        email           :bySel('[name=email]').value,
+        password        :bySel('[name=password]').value,
+        phone_number    :bySel('[name=phoneNumber]').value,
+        birth_date      :bySel('[name=birthDate]').value,
+        level           :bySel('[name=level]').value,
+        tournament_id   :TOURNAMENT_ID,
     };
     const response = await byPOSTasJSON(`${URL}/register`, player);
-    return [response.OK, response.json()];
+    return [response.ok, await response.json()];
 }
 
 /**
@@ -78,7 +92,9 @@ Email: ${responseData.email}`;
  * @param {Object} responseData 
  */
 function showError(responseData) {
-    const msg = `Não foi possível concluir a inscrição. ${responseData.detail}`;
+    // const msg = `Não foi possível concluir a inscrição. ${responseData.detail}`;
+    const errorInfo = responseData.detail; 
+    const msg = `Não foi possível concluir a inscrição ${errorInfo.error_msg}`;
     showSubmissionInfo(msg, false);
 }
 

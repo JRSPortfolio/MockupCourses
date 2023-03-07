@@ -67,7 +67,7 @@ async function registerPlayer(){
         phone_number    :bySel('[name=phoneNumber]').value,
         birth_date      :bySel('[name=birthDate]').value,
         level           :bySel('[name=level]').value,
-        tournament_id   :TOURNAMENT_ID,
+        tournament_id   :TOURNAMENT_ID,        
     };
     const response = await byPOSTasJSON(`${URL}/register`, player);
     return [response.ok, await response.json()];

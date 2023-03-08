@@ -78,11 +78,13 @@
       <a href="/account/register" class="get-started-btn">Registo Gratuito</a>
 
     </div>
-  </header>
+  </header> 
+  <!-- ===End of Header================= -->
 
         <div metal:define-slot="content" tal:omit-tag="True">
         </div>
 
+    <!-- =============Footer======================== -->
     <footer id="footer">
 
         <div class="footer-top">

@@ -10,8 +10,6 @@ async def index():
             'course2': 'Contabilidade',
             'course3': 'Electronica'}
 
-
-
 @router.get('/about')
 @template()
 async def about():

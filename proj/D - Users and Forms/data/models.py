@@ -1,5 +1,8 @@
+from dataclasses import dataclass, field
+import datetime
 from decimal import Decimal as dec
-from dataclasses  import dataclass
+from datetime import date, datetime
+
 
 @dataclass
 class Course:
@@ -31,3 +34,14 @@ class Testimonial:
     user_name: str
     user_occupation: str
     text: str
+    
+@dataclass
+class Student:
+    id: int 
+    name: str 
+    email: str 
+    password: str 
+    birth_date: date
+    profile_image_url: str |  None = None
+    created_date: date = field(default_factory = date.today)
+    last_login: datetime = field(default_factory = datetime.now)

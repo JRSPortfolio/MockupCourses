@@ -1,13 +1,25 @@
+from datetime import date
 from fastapi_chameleon import template #type: ignore
 from fastapi import APIRouter
 from common import base_viewmodel_with
+from data.models import Student
 
 router = APIRouter()
 
 @router.get('/account')
 @template()
 async def index():
-    return{}    
+    return account_viewmodel()    
+
+def account_viewmodel():
+    student = Student(id = 15002,
+                      name = 'Alberto Antunes',
+                      email = 'alb@mail.com',
+                      password = '123',
+                      birth_date = date(1990, 2, 3)
+                      )
+    return base_viewmodel_with({'name' : student.name,
+                                'email' : student.email})
 
 @router.get('/account/register')
 @template()

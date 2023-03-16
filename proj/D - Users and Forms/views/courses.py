@@ -1,7 +1,7 @@
 from fastapi_chameleon import template #type: ignore
 from fastapi import APIRouter
 from services import course_services
-from common import base_viewmodel_with
+from infrastructure.viewmodel import base_viewmodel_with
 
 router = APIRouter()
 

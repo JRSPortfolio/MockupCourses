@@ -8,6 +8,7 @@ from views import (
 )
 from docopt import docopt
 from fastapi.staticfiles import StaticFiles
+from infrastructure.middleware import add_global_request_middleware
 
 app = FastAPI()
 
@@ -26,9 +27,16 @@ def main():
     
 def config():
     print("[+] Configuring server")
+    config_middleware()
+    print('[+]...middleware configured')
     config_routes()
+    print('[+... routes configured]')
     config_templates()
+    print('[+] ... templates configured')
     print("[+] done configuring server")
+
+def config_middleware():
+    add_global_request_middleware(app)
     
 def config_routes():
     app.mount('/static', StaticFiles(directory='static'), name='static')

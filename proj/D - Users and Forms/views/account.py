@@ -9,7 +9,7 @@ from infrastructure.common import (is_valid_name,
                     MIN_DATE)
 from infrastructure.viewmodel import ViewModel
 from data.models import Student
-from services import student_services
+from services import student_services, auth_service
 
 router = APIRouter()
 
@@ -46,10 +46,10 @@ def register_viewmodel():
 @template(template_file = 'account/register.pt')
 async def post_register(request: Request):
     vm = await post_register_viewmodel(request)
-    # if vm.error: erro ver depois
-    if vm['error']:
+    if vm.error:
         return vm
     response = responses.RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+    auth_service.set_auth_cookie(response, vm.new_student_id)
     return response
 
 async def post_register_viewmodel(request: Request):
@@ -88,7 +88,7 @@ async def post_register_viewmodel(request: Request):
                      min_date = MIN_DATE,
                      max_date = date.today(),
                      checked = False,
-                     user_id= new_student_id)
+                     new_student_id = new_student_id)
     
 @router.get('/account/login')
 @template()
@@ -96,10 +96,43 @@ async def login():
     return login_viewmodel()
 
 def login_viewmodel():
-    return ViewModel(error = False,
-                     error_msg = 'There was an error with your data. Please try again.')
+    return ViewModel(email = '',
+                     password = '')
+    
+@router.post('/account/login')
+@template(template_file = 'account/login.pt')
+async def post_login(request: Request):
+    vm = await post_login_viewmodel(request)
+    if vm.error:
+        return vm
+    response = responses.RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+    auth_service.set_auth_cookie(response, vm.new_student_id)
+    return response
+
+async def post_login_viewmodel(request: Request):
+    form_data = await request.form()
+    email = form_field_as_str(form_data, 'email')
+    password = form_field_as_str(form_data, 'password')
+    student_id = None
+    
+    if not is_valid_email(email):
+        error, error_msg = True, 'Endereço de Email Inválido!'
+    elif not is_valid_password(password):
+        error, error_msg = True, 'Password Inválida!'
+    elif not (student := student_services.authenticate_student_by_email(email, password)):
+        error, error_msg = True, 'Dados do utilizador inválido!'
+    else:
+        error, error_msg = False, ''
+        student_id = student.id
+
+    return ViewModel(error = error,
+                     error_msg = error_msg,
+                     email = email,
+                     password = password,
+                     new_student_id = student_id)
 
 @router.get('/account/logout')
-@template()
 async def logout():
-    return{} 
+    response = responses.RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+    auth_service.delete_auth_cookie(response)
+    return response

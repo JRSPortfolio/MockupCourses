@@ -30,6 +30,12 @@ def get_student_by_email(email: str):
         raise ValueError(f"Endereço de email {email} inválido")
     return find_in(_students, lambda student: student.email == email)
 
+def authenticate_student_by_email(email, password):
+    if student := get_student_by_email(email):
+        if hash_password(password) == student.password:
+            return student
+    return None
+
 def get_testimonials(count: int):
     return[Testimonial(user_id = 239,
                        user_name = 'Saul Goodman',

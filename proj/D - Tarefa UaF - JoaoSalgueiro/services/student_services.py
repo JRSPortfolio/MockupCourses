@@ -24,17 +24,42 @@ def create_account(name: str,
                       birth_date = birth_date)
     _students.append(student)
     return student
+
+def update_student_email(email: str, student):
+    for stu in _students:
+        if stu.id == student.id:
+            stu.email = email
+    
+def update_student_password(password: str, student):
+    for stu in _students:
+        if stu.id == student.id:
+            stu.password = password
     
 def get_student_by_email(email: str):
     if not is_valid_email(email):
         raise ValueError(f"Endereço de email {email} inválido")
     return find_in(_students, lambda student: student.email == email)
 
-def authenticate_student_by_email(email, password):
+def get_student_by_id(id):
+    return find_in(_students, lambda student: student.id == id)
+
+def authenticate_student_by_email(email: str, password: str):
     if student := get_student_by_email(email):
         if hash_password(password) == student.password:
             return student
     return None
+
+def confirm_student_password(password: str, student):
+    if student.password == password:
+       return True 
+    else:
+        return False
+    
+def match_new_password(password1: str, password2: str):
+    if password1 == password2:
+        return True
+    else:
+        return False
 
 def get_testimonials(count: int):
     return[Testimonial(user_id = 239,

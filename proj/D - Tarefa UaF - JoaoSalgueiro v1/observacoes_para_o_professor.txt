@@ -1,0 +1,7 @@
+Para facilitar a identificação do conteúdo da tarefa deixo uma lista
+com os ficheiros que foram modificados após a parte alcançada no video.
+
+account.py
+student_services.py -> Não foi posto o tipo de dados em algumas funções para não dar erro quando 
+                       chamadas com funções que poderão devolver None
+index.pt

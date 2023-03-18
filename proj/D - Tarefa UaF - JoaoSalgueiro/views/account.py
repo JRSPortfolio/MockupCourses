@@ -10,24 +10,67 @@ from infrastructure.common import (is_valid_name,
 from infrastructure.viewmodel import ViewModel
 from data.models import Student
 from services import student_services, auth_service
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
 @router.get('/account')
 @template()
-async def index():
-    return account_viewmodel()    
+async def index(request: Request):
+    return account_viewmodel(request)    
 
-def account_viewmodel():
-    student = Student(id = 15002,
-                      name = 'Alberto Antunes',
-                      email = 'alb@mail.com',
-                      password = '123',
-                      birth_date = date(1990, 2, 3)
-                      )
-    return ViewModel(name = student.name,
-                     email = student.email)
+def account_viewmodel(request: Request):
+    print('get response')
+    student_id = auth_service.get_auth_from_cookie(request)
+    student = student_services.get_student_by_id(student_id)
+    return ViewModel(name = student.name,       #type: ignore
+                     email = student.email)     #type: ignore     
 
+@router.post('/account')
+@template(template_file = 'account/index.pt')
+async def put_index(request: Request):
+    vm = await put_index_viewmodel(request)
+    if vm.error:
+        return vm
+    else:
+        vm.error = True
+        vm.error_msg = "Dados de conta alterados."
+        return vm
+
+async def put_index_viewmodel(request: Request):
+    print('put request')
+    form_data = await request.form()
+    student_id = auth_service.get_auth_from_cookie(request)
+    student = student_services.get_student_by_id(student_id)
+    email = form_field_as_str(form_data, 'email')
+    current_password = form_field_as_str(form_data, 'current_password')
+    password = student_services.hash_password(current_password)
+    new_password = form_field_as_str(form_data, 'new_password')
+    repeat_password = form_field_as_str(form_data, 'repeat_password')
+   
+    if not is_valid_email(email):
+        error, error_msg = True, 'Email Inválido!'
+    elif not is_valid_password(current_password):
+        error, error_msg = True, 'Password Inválida!'
+    elif not student_services.confirm_student_password(password, student):
+        error, error_msg = True, 'Password Incorrecta!'
+    elif not student_services.match_new_password(new_password, repeat_password):
+        error, error_msg = True, 'Passwords Não Coincidem!'
+    else:
+        error, error_msg = False, ''
+        
+    if not error:
+        if email:
+            student_services.update_student_email(email, student)
+        if new_password:
+            new_password = student_services.hash_password(new_password)
+            student_services.update_student_password(new_password, student)
+    
+    return ViewModel(error = error,
+                     error_msg = error_msg,
+                     name = student.name,       #type: ignore
+                     email = student.email)     #type: ignore
+    
 @router.get('/account/register')
 @template()
 async def register():

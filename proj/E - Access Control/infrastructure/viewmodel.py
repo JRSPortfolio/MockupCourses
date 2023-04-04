@@ -6,14 +6,14 @@ __all__ = ['ViewModel']
 
 class ViewModel(dict):
     def __init__(self, *args, **kargs):
-        request = global_request.get()
-        student_id = auth_service.get_auth_from_cookie(request)
+        student = auth_service.get_current_user()
+        student_id = student.id if  student else None
         all = {'error' : None,
                'error_msg' : None,
                'alteration' : None,
                'alteration_msg' : None,
                'user_id' : student_id,
-               'is_logged_in' : bool(student_id)}
+               'is_logged_in' : student_id is not None}
         all.update(kargs)
         super().__init__(self, *args, **all)
         

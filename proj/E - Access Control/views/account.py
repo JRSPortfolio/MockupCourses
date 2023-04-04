@@ -1,6 +1,10 @@
 from datetime import date
 from fastapi_chameleon import template #type: ignore
-from fastapi import APIRouter, Request, responses, status
+from fastapi import (APIRouter, 
+                     Request,
+                     responses, 
+                     status,
+                     Depends)
 from infrastructure.common import (is_valid_name,
                     form_field_as_str,
                     is_valid_birth_date,
@@ -13,30 +17,32 @@ from database import database_crud as db_c
 
 router = APIRouter()
 
-@router.get('/account')
+@router.get('/account',
+            dependencies = [Depends(auth_service.requires_authentication)])
 @template()
-async def index(request: Request):
-    return account_viewmodel(request)    
+async def index():
+    return account_viewmodel()    
 
-def account_viewmodel(request: Request):
+def account_viewmodel():
     print('get response')
-    student_id = auth_service.get_auth_from_cookie(request)
-    student = db_c.get_db_student_by_id(student_id)
-    return ViewModel(name = student.name,       #type: ignore
-                     email = student.email)     #type: ignore     
+    student = auth_service.get_current_user()
+    assert student is not None
+    return ViewModel(name = student.name,      
+                     email = student.email)
 
-@router.post('/account')
+@router.post('/account',
+             dependencies = [Depends(auth_service.requires_authentication)])
 @template(template_file = 'account/index.pt')
 async def post_index(request: Request):
     vm = await post_index_viewmodel(request)
     return vm
 
 async def post_index_viewmodel(request: Request):
-    print('put request')
     form_data = await request.form()
-    student_id = auth_service.get_auth_from_cookie(request)
-    student = db_c.get_db_student_by_id(student_id)
-    email = form_field_as_str(form_data, 'email')
+    student = auth_service.get_current_user()
+    assert student is not None
+    
+    email = form_field_as_str(form_data, 'email').strip()
     current_password = form_field_as_str(form_data, 'current_password')
     password = student_services.hash_password(current_password)
     new_password = form_field_as_str(form_data, 'new_password')
@@ -56,21 +62,25 @@ async def post_index_viewmodel(request: Request):
         error, error_msg = False, ''
         
     if not error:
-        if email:
+        if email != student.email:
             db_c.update_db_student_email(email, student)
+            alteration, alteration_msg = True, "Dados de conta alterados."
         if new_password:
             new_password = student_services.hash_password(new_password)
             db_c.update_db_student_password(new_password, student)
-        alteration, alteration_msg = True, "Dados de conta alterados."
+            alteration, alteration_msg = True, "Dados de conta alterados."
+        else:
+            return responses.RedirectResponse(url='/account', status_code=status.HTTP_302_FOUND)
     
     return ViewModel(error = error,
                      error_msg = error_msg,
-                     name = student.name,       #type: ignore
-                     email = student.email,     #type: ignore
+                     name = student.name,
+                     email = student.email,
                      alteration = alteration,
                      alteration_msg = alteration_msg)     
     
-@router.get('/account/register')
+@router.get('/account/register',
+            dependencies = [Depends(auth_service.requires_unauthentication)])
 @template()
 async def register():
     return register_viewmodel()
@@ -84,7 +94,8 @@ def register_viewmodel():
                      max_date = date.today(),
                      checked = False)
 
-@router.post('/account/register')
+@router.post('/account/register',
+             dependencies = [Depends(auth_service.requires_unauthentication)])
 @template(template_file = 'account/register.pt')
 async def post_register(request: Request):
     vm = await post_register_viewmodel(request)
@@ -97,7 +108,7 @@ async def post_register(request: Request):
 async def post_register_viewmodel(request: Request):
     form_data = await request.form()
     name = form_field_as_str(form_data, 'name')
-    email = form_field_as_str(form_data, 'email')
+    email = form_field_as_str(form_data, 'email').strip()
     password = form_field_as_str(form_data, 'password')
     birth_date = form_field_as_str(form_data, 'birth_date')
     new_student_id = None
@@ -134,7 +145,8 @@ async def post_register_viewmodel(request: Request):
                      checked = False,
                      new_student_id = new_student_id)
     
-@router.get('/account/login')
+@router.get('/account/login',
+            dependencies = [Depends(auth_service.requires_unauthentication)])
 @template()
 async def login():
     return login_viewmodel()
@@ -143,7 +155,8 @@ def login_viewmodel():
     return ViewModel(email = '',
                      password = '')
     
-@router.post('/account/login')
+@router.post('/account/login',
+             dependencies = [Depends(auth_service.requires_unauthentication)])
 @template(template_file = 'account/login.pt')
 async def post_login(request: Request):
     vm = await post_login_viewmodel(request)
@@ -177,7 +190,8 @@ async def post_login_viewmodel(request: Request):
                      password = password,
                      new_student_id = student_id)
 
-@router.get('/account/logout')
+@router.get('/account/logout',
+            dependencies = [Depends(auth_service.requires_authentication)])
 async def logout():
     response = responses.RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
     auth_service.delete_auth_cookie(response)

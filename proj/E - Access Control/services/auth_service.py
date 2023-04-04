@@ -1,5 +1,15 @@
-from fastapi import Response, Request
+all = ('set_auth_cookie',
+       'get_auth_from_cookie',
+       'delete_auth_cookie',
+       'hash_cookie_value',
+       'get_current_user',
+       'requires_unauthentication')
+
 from hashlib import sha512
+
+from database import database_crud as db_c
+from fastapi import HTTPException, Request, Response, status
+from infrastructure.middleware import global_request
 
 AUTH_COOKIE_NAME = 'user_id'
 SECRET_KEY = '8e10a458e68dff54488dds5588d69984vf488ry5588c1236d66'
@@ -33,4 +43,25 @@ def delete_auth_cookie(response: Response):
 
 def hash_cookie_value(value :str):
     return sha512(f'{value}{SECRET_KEY}'.encode('utf-8')).hexdigest()
+
+def get_current_user():
+    if student_id := get_auth_from_cookie(global_request.get()):
+        return db_c.get_db_student_by_id(student_id)
+    return None
+    
+def requires_unauthentication():
+    if get_current_user():
+        raise HTTPUnauthorizedOnly(detail = 'This is a public area only.')
+    
+def requires_authentication():
+    if not get_current_user():
+        raise HTTPUnauthorizedAccess(detail = 'This area requires authentication.')
+    
+class HTTPUnauthorizedAccess(HTTPException):
+    def __init__(self, *args, **kargs):
+        super().__init__(status_code = status.HTTP_401_UNAUTHORIZED, *args, **kargs)
+
+class HTTPUnauthorizedOnly(HTTPUnauthorizedAccess):
+    ...
+        
 

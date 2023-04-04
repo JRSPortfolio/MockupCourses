@@ -1,10 +1,6 @@
-from random import randrange
-from typing import List
 from data.models import Testimonial, Student
 from datetime import date
-from infrastructure.common import is_valid_email, find_in
 from database import database_crud as db_c
-from sqlalchemy.orm import Session
 
 
 def student_count():

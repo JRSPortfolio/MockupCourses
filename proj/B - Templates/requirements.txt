@@ -1,5 +1,0 @@
-fastapi
-uvicorn[standard]
-fastapi-chameleon
-docopt
-aiofiles
